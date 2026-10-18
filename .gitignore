@@ -1,0 +1,67 @@
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
+
+# Environment variables & secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Runtime data
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# Build & compiled output
+dist/
+build/
+out/
+*.tsbuildinfo
+
+# Coverage & test output
+coverage/
+*.lcov
+.nyc_output/
+
+# Cache & temporary directories
+.npm/
+.eslintcache
+.cache/
+.parcel-cache/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE & Editor folders
+.idea/
+.vscode/
+*.sublime-workspace
+*.swp
+
+# Local API test requests
+requests.http
+
+# AI agent & developer notes (local only — README.md is tracked)
+AGENTS.md
+CLAUDE.md
+Progress.md
