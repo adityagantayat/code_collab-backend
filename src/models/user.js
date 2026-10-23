@@ -17,7 +17,7 @@ const userSchema = new Schema({
     },
     about: { type: String },
     skills: { type: [String] },
-    photoUrl: { type: String },
+    photoUrl: { type: String, default: 'https://images.pexels.com/photos/32703420/pexels-photo-32703420.jpeg' },
 }, { timestamps: true });
 
 userSchema.methods.validatePassword = async function (passwordInput) {

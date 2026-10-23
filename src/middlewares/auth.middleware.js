@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/user.js';
+import { sendError } from '../utils/response.js';
 
-
-export const userAuth = (async (req, res, next) => {
+export const userAuth = async (req, res, next) => {
     try {
         const token = req.cookies.token;
         if (!token) {
@@ -16,6 +16,6 @@ export const userAuth = (async (req, res, next) => {
         req.user = user;
         next();
     } catch (error) {
-        res.status(401).send('Error authenticating user: ' + error.message);
+        sendError(res, 401, 'Error authenticating user: ' + error.message);
     }
-});
+};

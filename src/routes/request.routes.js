@@ -3,6 +3,7 @@ import { User } from '../models/user.js';
 import { ConnectionRequest } from '../models/connectionRequest.js';
 import validator from 'validator';
 import { STATUS } from '../utils/constants.js';
+import { sendSuccess, sendError } from '../utils/response.js';
 
 const router = Router();
 
@@ -13,20 +14,20 @@ router.post('/send/:status/:toUserId', async (req, res) => {
         const status = req.params.status;
         const allowedStatus = [STATUS.INTERESTED, STATUS.IGNORED];
         if (!toUserId || !status) {
-            return res.status(400).json({ message: 'Missing required fields' });
+            return sendError(res, 400, 'Missing required fields');
         }
         if (!allowedStatus.includes(status)) {
-            return res.status(400).json({ message: 'Invalid status' });
+            return sendError(res, 400, 'Invalid status');
         }
         if (!validator.isMongoId(toUserId)) {
-            return res.status(400).json({ message: 'Invalid user ID format' });
+            return sendError(res, 400, 'Invalid user ID format');
         }
         const targetUser = await User.findById(toUserId);
         if (!targetUser) {
-            return res.status(404).json({ message: 'User not found' });
+            return sendError(res, 404, 'User not found');
         }
         if (toUserId === fromUserId.toString()) {
-            return res.status(400).json({ message: 'You cannot send a connection request to yourself' });
+            return sendError(res, 400, 'You cannot send a connection request to yourself');
         }
         const existingConnectionRequest = await ConnectionRequest.findOne({
             $or: [
@@ -35,14 +36,14 @@ router.post('/send/:status/:toUserId', async (req, res) => {
             ],
         });
         if (existingConnectionRequest) {
-            return res.status(409).json({ message: 'Connection request already exists' });
+            return sendError(res, 409, 'Connection request already exists');
         }
         const connectionRequest = new ConnectionRequest({ fromUserId, toUserId, status });
         const data = await connectionRequest.save();
-        res.status(200).json({ message: 'Connection request sent successfully', data });
+        sendSuccess(res, 200, 'Connection request sent successfully', data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error sending connection request: ' + error.message });
+        sendError(res, 500, 'Error sending connection request: ' + error.message);
     }
 });
 
@@ -53,13 +54,13 @@ router.patch('/review/:status/:requestId', async (req, res) => {
         const allowedStatus = [STATUS.ACCEPTED, STATUS.REJECTED];
 
         if (!requestId || !status) {
-            return res.status(400).json({ message: 'Missing required fields' });
+            return sendError(res, 400, 'Missing required fields');
         }
         if (!validator.isMongoId(requestId)) {
-            return res.status(400).json({ message: 'Invalid Request ID' });
+            return sendError(res, 400, 'Invalid Request ID');
         }
         if (!allowedStatus.includes(status)) {
-            return res.status(400).json({ message: 'Invalid status for review' });
+            return sendError(res, 400, 'Invalid status for review');
         }
         const connectionRequest = await ConnectionRequest.findOne({
             _id: requestId,
@@ -67,15 +68,15 @@ router.patch('/review/:status/:requestId', async (req, res) => {
             status: STATUS.INTERESTED,
         });
         if (!connectionRequest) {
-            return res.status(404).json({ message: 'Invalid Connection Request' });
+            return sendError(res, 404, 'Invalid Connection Request');
         }
 
         connectionRequest.status = status;
         const data = await connectionRequest.save();
-        res.status(200).json({ message: 'Connection request ' + status.toLowerCase() + ' successfully', data });
+        sendSuccess(res, 200, 'Connection request ' + status.toLowerCase() + ' successfully', data);
     } catch (error) {
         console.log(error);
-        res.status(500).json({ message: 'Error reviewing connection request: ' + error.message });
+        sendError(res, 500, 'Error reviewing connection request: ' + error.message);
     }
 });
 

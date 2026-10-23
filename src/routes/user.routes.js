@@ -2,18 +2,21 @@ import { Router } from 'express';
 import { ConnectionRequest } from '../models/connectionRequest.js';
 import { STATUS, SAFE_DATA } from '../utils/constants.js';
 import { User } from '../models/user.js';
+import { sendSuccess, sendError } from '../utils/response.js';
+
 const router = Router();
+
 router.get('/requests/received', async (req, res) => {
     try {
         const { _id } = req.user;
         const requests = await ConnectionRequest.find({
             toUserId: _id,
-            status: STATUS.INTERESTED
+            status: STATUS.INTERESTED,
         }).populate('fromUserId', SAFE_DATA);
-        res.status(200).json(requests);
+        sendSuccess(res, 200, 'Received connection requests fetched successfully', requests);
     } catch (error) {
         console.log(error);
-        res.status(500).send('Error getting user requests: ' + error.message);
+        sendError(res, 500, 'Error getting user requests: ' + error.message);
     }
 });
 
@@ -23,8 +26,8 @@ router.get('/connections', async (req, res) => {
         const requests = await ConnectionRequest.find({
             $or: [
                 { fromUserId: _id, status: STATUS.ACCEPTED },
-                { toUserId: _id, status: STATUS.ACCEPTED }
-            ]
+                { toUserId: _id, status: STATUS.ACCEPTED },
+            ],
         })
             .populate('toUserId', SAFE_DATA)
             .populate('fromUserId', SAFE_DATA);
@@ -37,10 +40,10 @@ router.get('/connections', async (req, res) => {
                 return request.fromUserId;
             });
 
-        res.status(200).json({ data });
+        sendSuccess(res, 200, 'Connections fetched successfully', data);
     } catch (error) {
         console.log(error);
-        res.status(500).send('Error getting user connections: ' + error.message);
+        sendError(res, 500, 'Error getting user connections: ' + error.message);
     }
 });
 
@@ -54,8 +57,8 @@ router.get('/feed', async (req, res) => {
         const connections = await ConnectionRequest.find({
             $or: [
                 { fromUserId: loggedInUserId },
-                { toUserId: loggedInUserId }
-            ]
+                { toUserId: loggedInUserId },
+            ],
         }).select('fromUserId toUserId');
 
         const hideUsersFromFeed = new Set();
@@ -66,16 +69,17 @@ router.get('/feed', async (req, res) => {
         const users = await User.find({
             $and: [{
                 _id: {
-                    $nin: Array.from(hideUsersFromFeed)
-                }
+                    $nin: Array.from(hideUsersFromFeed),
+                },
             }, {
-                _id: { $ne: loggedInUserId }
-            }]
+                _id: { $ne: loggedInUserId },
+            }],
         }).select(SAFE_DATA).skip(skip).limit(limit);
-        res.status(200).json({ data: users });
+        sendSuccess(res, 200, 'User feed fetched successfully', users);
     } catch (error) {
         console.log(error);
-        res.status(500).send('Error getting user feed: ' + error.message);
+        sendError(res, 500, 'Error getting user feed: ' + error.message);
     }
 });
+
 export { router as userRouter };
