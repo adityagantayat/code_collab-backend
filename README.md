@@ -138,7 +138,7 @@ All request bodies are JSON (`Content-Type: application/json`).
 ### Auth — prefix `/auth`
 
 #### `POST /auth/signup`
-Create a new user account.
+Create a new user account with required credentials and optional profile details.
 
 **Body**
 ```json
@@ -146,14 +146,21 @@ Create a new user account.
   "firstName": "Aditya",
   "lastName": "Gantayat",
   "emailId": "aditya@example.com",
-  "password": "Str0ng@Pass!"
+  "password": "Str0ng@Pass!",
+  "age": 26,
+  "gender": "male",
+  "about": "Full stack developer",
+  "skills": ["JavaScript", "React", "Node.js"],
+  "photoUrl": "https://example.com/avatar.jpg"
 }
 ```
+*Required: `firstName`, `emailId`, `password`.*  
+*Optional: `lastName`, `age`, `gender` (`'male' | 'female' | 'other'`), `about`, `skills`, `photoUrl`.*
 
 | Status | Meaning                          |
 | ------ | -------------------------------- |
 | 201    | User created successfully        |
-| 400    | Validation error (name, email, weak password, etc.) |
+| 400    | Validation error (name, email, weak password, invalid gender, etc.) |
 | 409    | Email already registered         |
 | 500    | Server error                     |
 
