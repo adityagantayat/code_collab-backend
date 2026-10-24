@@ -20,10 +20,14 @@ router.post('/signup', async (req, res) => {
             gender,
             about,
             skills,
-            photoUrl,
+            photoUrl: photoUrl || undefined,
         });
-        await user.save();
-        sendSuccess(res, 201, 'User saved successfully', user);
+        const savedUser = await user.save();
+        const token = savedUser.getJWT();
+        res.cookie('token', token, {
+            expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000),
+        });
+        sendSuccess(res, 201, 'User saved successfully', savedUser);
     } catch (error) {
         console.log(error);
         if (error.code === 11000) {
