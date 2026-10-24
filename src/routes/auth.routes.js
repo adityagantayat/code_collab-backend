@@ -9,9 +9,19 @@ const router = Router();
 router.post('/signup', async (req, res) => {
     try {
         validateSignUpData(req);
-        const { firstName, lastName, emailId, password } = req.body;
+        const { firstName, lastName, emailId, password, age, gender, about, skills, photoUrl } = req.body;
         const passwordHash = await bcrypt.hash(password, 10);
-        const user = new User({ firstName, lastName, emailId, password: passwordHash });
+        const user = new User({
+            firstName,
+            lastName,
+            emailId,
+            password: passwordHash,
+            age,
+            gender,
+            about,
+            skills,
+            photoUrl,
+        });
         await user.save();
         sendSuccess(res, 201, 'User saved successfully', user);
     } catch (error) {
